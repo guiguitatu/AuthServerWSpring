@@ -1,0 +1,116 @@
+package com.example.authserver;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.net.httpserver.HttpContext;
+import com.sun.net.httpserver.HttpServer;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class ProductHttpHandlerIntegrationTest {
+
+    private HttpServer server;
+    private HttpClient client;
+    private ObjectMapper objectMapper;
+    private int port;
+
+    @BeforeEach
+    void setUp() throws IOException {
+        ProductRepository repository = new ProductRepository();
+        server = HttpServer.create(new InetSocketAddress(0), 0);
+        HttpContext context = server.createContext("/products", new ProductHttpHandler(repository));
+        context.getFilters().clear();
+        server.start();
+        port = server.getAddress().getPort();
+        client = HttpClient.newHttpClient();
+        objectMapper = new ObjectMapper();
+    }
+
+    @AfterEach
+    void tearDown() {
+        server.stop(0);
+    }
+
+    @Test
+    void shouldUpdateProduct() throws Exception {
+        Product created = createProduct("Tablet", "Tablet 10", "1500.00");
+
+        String updatePayload = "{" +
+                "\"name\":\"Tablet Pro\"," +
+                "\"description\":\"Tablet atualizado\"," +
+                "\"price\":1999.90" +
+                "}";
+
+        HttpRequest request = HttpRequest.newBuilder(uri("/products/" + created.getId()))
+                .header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(updatePayload))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, response.statusCode());
+
+        Product updated = objectMapper.readValue(response.body(), Product.class);
+        assertEquals(created.getId(), updated.getId());
+        assertEquals("Tablet Pro", updated.getName());
+        assertEquals("Tablet atualizado", updated.getDescription());
+
+        HttpResponse<String> getResponse = client.send(
+                HttpRequest.newBuilder(uri("/products/" + created.getId())).GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+        assertEquals(200, getResponse.statusCode());
+        Product fetched = objectMapper.readValue(getResponse.body(), Product.class);
+        assertEquals("Tablet Pro", fetched.getName());
+    }
+
+    @Test
+    void shouldDeleteProduct() throws Exception {
+        Product created = createProduct("Camera", "Camera de ação", "890.00");
+
+        HttpResponse<String> deleteResponse = client.send(
+                HttpRequest.newBuilder(uri("/products/" + created.getId())).DELETE().build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+
+        assertEquals(204, deleteResponse.statusCode());
+        assertEquals("", deleteResponse.body());
+
+        HttpResponse<String> getResponse = client.send(
+                HttpRequest.newBuilder(uri("/products/" + created.getId())).GET().build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+
+        assertEquals(404, getResponse.statusCode());
+        assertTrue(getResponse.body().contains("Produto não encontrado"));
+    }
+
+    private Product createProduct(String name, String description, String price) throws Exception {
+        String payload = "{" +
+                "\"name\":\"" + name + "\"," +
+                "\"description\":\"" + description + "\"," +
+                "\"price\":" + price +
+                "}";
+
+        HttpRequest request = HttpRequest.newBuilder(uri("/products"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(payload))
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(201, response.statusCode());
+        return objectMapper.readValue(response.body(), Product.class);
+    }
+
+    private URI uri(String path) {
+        return URI.create("http://localhost:" + port + path);
+    }
+}

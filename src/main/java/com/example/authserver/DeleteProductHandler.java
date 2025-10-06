@@ -4,22 +4,24 @@ import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.Optional;
 
-public class GetProductHandler extends AbstractProductHandler {
+public class DeleteProductHandler extends AbstractProductHandler {
 
-    public GetProductHandler(ProductRepository repository, ResponseWriter responseWriter) {
+    public DeleteProductHandler(ProductRepository repository, ResponseWriter responseWriter) {
         super(repository, responseWriter);
     }
 
     @Override
     protected void doHandle(HttpExchange exchange) throws IOException {
         int id = extractProductId(exchange);
-        Optional<Product> product = repository.findById(id);
-        if (product.isPresent()) {
-            responseWriter.writeJson(exchange, 200, product.get());
-        } else {
+        boolean removed = repository.deleteById(id);
+        if (!removed) {
             responseWriter.writeJson(exchange, 404, Map.of("error", "Produto não encontrado"));
+            return;
         }
+
+        exchange.getResponseHeaders().remove("Content-Type");
+        exchange.sendResponseHeaders(204, -1);
+        exchange.getResponseBody().close();
     }
 }
