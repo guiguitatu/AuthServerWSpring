@@ -10,12 +10,16 @@ public class HandlerFactory {
     private final RouteHandler listProductsHandler;
     private final RouteHandler createProductHandler;
     private final RouteHandler getProductHandler;
+    private final RouteHandler updateProductHandler;
+    private final RouteHandler deleteProductHandler;
     private final RouteHandler methodNotAllowedHandler;
 
     public HandlerFactory(ProductRepository repository, ResponseWriter responseWriter) {
         this.listProductsHandler = new ListProductsHandler(repository, responseWriter);
         this.createProductHandler = new CreateProductHandler(repository, responseWriter, new DefaultProductValidator());
         this.getProductHandler = new GetProductHandler(repository, responseWriter);
+        this.updateProductHandler = new UpdateProductHandler(repository, responseWriter, new DefaultProductValidator());
+        this.deleteProductHandler = new DeleteProductHandler(repository, responseWriter);
         this.methodNotAllowedHandler = new StaticResponseHandler(405, Map.of("error", "Método não suportado"), responseWriter);
     }
 
@@ -32,10 +36,12 @@ public class HandlerFactory {
         }
 
         if (path.matches("/products/\\d+")) {
-            if ("GET".equals(method)) {
-                return Optional.of(getProductHandler);
-            }
-            return Optional.of(methodNotAllowedHandler);
+            return switch (method) {
+                case "GET" -> Optional.of(getProductHandler);
+                case "PUT" -> Optional.of(updateProductHandler);
+                case "DELETE" -> Optional.of(deleteProductHandler);
+                default -> Optional.of(methodNotAllowedHandler);
+            };
         }
 
         return Optional.empty();

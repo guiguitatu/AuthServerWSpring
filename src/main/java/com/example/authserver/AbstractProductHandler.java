@@ -19,5 +19,11 @@ public abstract class AbstractProductHandler implements RouteHandler {
         doHandle(exchange);
     }
 
+    protected int extractProductId(HttpExchange exchange) {
+        String path = exchange.getRequestURI().getPath();
+        int lastSlash = path.lastIndexOf('/');
+        return Integer.parseInt(path.substring(lastSlash + 1));
+    }
+
     protected abstract void doHandle(HttpExchange exchange) throws IOException;
 }

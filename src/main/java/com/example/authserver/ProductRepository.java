@@ -34,4 +34,8 @@ public class ProductRepository {
         return product;
     }
 
+    public boolean deleteById(int id) {
+        return products.remove(id) != null;
+    }
+
 }

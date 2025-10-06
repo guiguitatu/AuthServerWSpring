@@ -38,4 +38,28 @@ class ProductRepositoryTest {
 
         assertTrue(repository.findAll().size() >= 2);
     }
+
+    @Test
+    void shouldUpdateExistingProduct() {
+        Product product = repository.save(new Product(0, "Console", "Console de videogame", new BigDecimal("3500.00")));
+
+        repository.save(new Product(product.getId(), "Console Pro", "Console atualizado", new BigDecimal("4200.00")));
+
+        Product updated = repository.findById(product.getId()).orElseThrow();
+        assertEquals("Console Pro", updated.getName());
+        assertEquals(new BigDecimal("4200.00"), updated.getPrice());
+    }
+
+    @Test
+    void shouldRemoveProductById() {
+        Product product = repository.save(new Product(0, "Impressora", "Impressora laser", new BigDecimal("1100.00")));
+
+        assertTrue(repository.deleteById(product.getId()));
+        assertTrue(repository.findById(product.getId()).isEmpty());
+    }
+
+    @Test
+    void shouldReturnFalseWhenDeletingUnknownProduct() {
+        assertFalse(repository.deleteById(9999));
+    }
 }
