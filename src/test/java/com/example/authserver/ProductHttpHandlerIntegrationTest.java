@@ -3,6 +3,8 @@ package com.example.authserver;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,10 +26,14 @@ class ProductHttpHandlerIntegrationTest {
     private HttpClient client;
     private ObjectMapper objectMapper;
     private int port;
+    private EntityManagerFactory entityManagerFactory;
 
     @BeforeEach
     void setUp() throws IOException {
-        ProductRepository repository = new ProductRepository();
+        entityManagerFactory = Persistence.createEntityManagerFactory("authServerPU", Map.of(
+                "jakarta.persistence.jdbc.url", "jdbc:h2:mem:product-http-handler-test-" + UUID.randomUUID() + ";MODE=LEGACY"
+        ));
+        ProductRepository repository = new ProductRepository(entityManagerFactory);
         server = HttpServer.create(new InetSocketAddress(0), 0);
         HttpContext context = server.createContext("/products", new ProductHttpHandler(repository));
         context.getFilters().clear();
@@ -38,6 +46,7 @@ class ProductHttpHandlerIntegrationTest {
     @AfterEach
     void tearDown() {
         server.stop(0);
+        entityManagerFactory.close();
     }
 
     @Test
