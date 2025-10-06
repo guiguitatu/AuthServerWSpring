@@ -31,6 +31,7 @@ public class HandlerFactory {
             return switch (method) {
                 case "GET" -> Optional.of(listProductsHandler);
                 case "POST" -> Optional.of(createProductHandler);
+                case "DELETE" -> Optional.of(deleteProductHandler);
                 default -> Optional.of(methodNotAllowedHandler);
             };
         }
