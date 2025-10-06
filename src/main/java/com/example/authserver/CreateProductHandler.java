@@ -21,7 +21,7 @@ public class CreateProductHandler extends AbstractProductHandler {
             responseWriter.writeJson(exchange, 400, Map.of("error", "Dados inválidos"));
             return;
         }
-        Product created = repository.save(new Product(0, payload.getName(), payload.getDescription(), payload.getPrice()));
+        Product created = repository.save(new Product(null, payload.getName(), payload.getDescription(), payload.getPrice()));
         responseWriter.writeJson(exchange, 201, created);
     }
 }
