@@ -93,6 +93,41 @@ class ProductHttpHandlerIntegrationTest {
         assertTrue(getResponse.body().contains("Produto não encontrado"));
     }
 
+    @Test
+    void shouldDeleteProductUsingQueryParameter() throws Exception {
+        Product created = createProduct("Console", "Console portátil", "1999.99");
+
+        HttpResponse<String> deleteResponse = client.send(
+                HttpRequest.newBuilder(uri("/products?id=" + created.getId())).DELETE().build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+
+        assertEquals(204, deleteResponse.statusCode());
+        assertEquals("", deleteResponse.body());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenDeletingWithoutId() throws Exception {
+        HttpResponse<String> response = client.send(
+                HttpRequest.newBuilder(uri("/products")).DELETE().build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+
+        assertEquals(400, response.statusCode());
+        assertTrue(response.body().contains("Identificador de produto não informado"));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenDeletingWithInvalidId() throws Exception {
+        HttpResponse<String> response = client.send(
+                HttpRequest.newBuilder(uri("/products?id=abc")).DELETE().build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
+
+        assertEquals(400, response.statusCode());
+        assertTrue(response.body().contains("Identificador de produto inválido"));
+    }
+
     private Product createProduct(String name, String description, String price) throws Exception {
         String payload = "{" +
                 "\"name\":\"" + name + "\"," +
