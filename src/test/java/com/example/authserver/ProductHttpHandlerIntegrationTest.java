@@ -1,5 +1,8 @@
 package com.example.authserver;
 
+import com.example.authserver.domain.Product;
+import com.example.authserver.http.ProductHttpHandler;
+import com.example.authserver.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;

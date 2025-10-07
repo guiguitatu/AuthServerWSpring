@@ -1,5 +1,6 @@
-package com.example.authserver;
+package com.example.authserver.repository;
 
+import com.example.authserver.domain.Product;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;

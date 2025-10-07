@@ -1,5 +1,13 @@
-package com.example.authserver;
+package com.example.authserver.http.handler;
 
+import com.example.authserver.http.ResponseWriter;
+import com.example.authserver.http.handler.product.CreateProductHandler;
+import com.example.authserver.http.handler.product.DeleteProductHandler;
+import com.example.authserver.http.handler.product.GetProductHandler;
+import com.example.authserver.http.handler.product.ListProductsHandler;
+import com.example.authserver.http.handler.product.UpdateProductHandler;
+import com.example.authserver.repository.ProductRepository;
+import com.example.authserver.validation.DefaultProductValidator;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.example.authserver;
+package com.example.authserver.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

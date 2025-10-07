@@ -1,5 +1,6 @@
-package com.example.authserver;
+package com.example.authserver.validation;
 
+import com.example.authserver.domain.Product;
 import java.math.BigDecimal;
 
 public class DefaultProductValidator implements ProductValidator {

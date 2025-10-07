@@ -1,5 +1,9 @@
-package com.example.authserver;
+package com.example.authserver.http.handler.product;
 
+import com.example.authserver.domain.Product;
+import com.example.authserver.http.ResponseWriter;
+import com.example.authserver.repository.ProductRepository;
+import com.example.authserver.validation.ProductValidator;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;

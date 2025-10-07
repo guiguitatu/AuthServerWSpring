@@ -1,5 +1,8 @@
 package com.example.authserver;
 
+import com.example.authserver.http.ProductHttpHandler;
+import com.example.authserver.http.RequestLoggingFilter;
+import com.example.authserver.repository.ProductRepository;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
 import jakarta.persistence.EntityManagerFactory;

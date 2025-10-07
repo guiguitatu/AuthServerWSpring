@@ -1,4 +1,4 @@
-package com.example.authserver;
+package com.example.authserver.http.handler;
 
 import com.sun.net.httpserver.HttpExchange;
 
