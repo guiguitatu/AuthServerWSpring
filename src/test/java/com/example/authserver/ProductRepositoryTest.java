@@ -1,5 +1,7 @@
 package com.example.authserver;
 
+import com.example.authserver.domain.Product;
+import com.example.authserver.repository.ProductRepository;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import org.junit.jupiter.api.AfterEach;
