@@ -2,34 +2,28 @@ package com.example.authserver;
 
 import com.example.authserver.domain.Product;
 import com.example.authserver.repository.ProductRepository;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.Map;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ProductRepositoryTest {
 
-    private EntityManagerFactory entityManagerFactory;
     private ProductRepository repository;
+    private String jdbcUrl;
 
     @BeforeEach
-    void setUp() {
-        entityManagerFactory = Persistence.createEntityManagerFactory("authServerPU", Map.of(
-                "jakarta.persistence.jdbc.url", "jdbc:h2:mem:product-repository-test-" + UUID.randomUUID() + ";MODE=LEGACY"
-        ));
-        repository = new ProductRepository(entityManagerFactory);
-    }
-
-    @AfterEach
-    void tearDown() {
-        entityManagerFactory.close();
+    void setUp() throws SQLException {
+        jdbcUrl = "jdbc:h2:mem:product-repository-test-" + UUID.randomUUID() + ";MODE=MySQL;DB_CLOSE_DELAY=-1";
+        repository = new ProductRepository(jdbcUrl, "sa", "");
+        recreateSchema();
     }
 
     @Test
@@ -77,5 +71,20 @@ class ProductRepositoryTest {
     @Test
     void shouldReturnFalseWhenDeletingUnknownProduct() {
         assertFalse(repository.deleteById(9999));
+    }
+
+    private void recreateSchema() throws SQLException {
+        try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+             Statement statement = connection.createStatement()) {
+            statement.executeUpdate("DROP TABLE IF EXISTS products");
+            statement.executeUpdate("""
+                    CREATE TABLE products (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        name VARCHAR(255) NOT NULL,
+                        description TEXT NOT NULL,
+                        price DECIMAL(19, 2) NOT NULL
+                    )
+                    """);
+        }
     }
 }

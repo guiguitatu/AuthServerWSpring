@@ -6,8 +6,6 @@ import com.example.authserver.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpServer;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +16,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Map;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,14 +30,14 @@ class ProductHttpHandlerIntegrationTest {
     private HttpClient client;
     private ObjectMapper objectMapper;
     private int port;
-    private EntityManagerFactory entityManagerFactory;
+    private ProductRepository repository;
+    private String jdbcUrl;
 
     @BeforeEach
-    void setUp() throws IOException {
-        entityManagerFactory = Persistence.createEntityManagerFactory("authServerPU", Map.of(
-                "jakarta.persistence.jdbc.url", "jdbc:h2:mem:product-http-handler-test-" + UUID.randomUUID() + ";MODE=LEGACY"
-        ));
-        ProductRepository repository = new ProductRepository(entityManagerFactory);
+    void setUp() throws IOException, SQLException {
+        jdbcUrl = "jdbc:h2:mem:product-http-handler-test-" + UUID.randomUUID() + ";MODE=MySQL;DB_CLOSE_DELAY=-1";
+        repository = new ProductRepository(jdbcUrl, "sa", "");
+        recreateSchema();
         server = HttpServer.create(new InetSocketAddress(0), 0);
         HttpContext context = server.createContext("/products", new ProductHttpHandler(repository));
         context.getFilters().clear();
@@ -49,7 +50,6 @@ class ProductHttpHandlerIntegrationTest {
     @AfterEach
     void tearDown() {
         server.stop(0);
-        entityManagerFactory.close();
     }
 
     @Test
@@ -159,5 +159,20 @@ class ProductHttpHandlerIntegrationTest {
 
     private URI uri(String path) {
         return URI.create("http://localhost:" + port + path);
+    }
+
+    private void recreateSchema() throws SQLException {
+        try (Connection connection = DriverManager.getConnection(jdbcUrl, "sa", "");
+             Statement statement = connection.createStatement()) {
+            statement.executeUpdate("DROP TABLE IF EXISTS products");
+            statement.executeUpdate("""
+                    CREATE TABLE products (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        name VARCHAR(255) NOT NULL,
+                        description TEXT NOT NULL,
+                        price DECIMAL(19, 2) NOT NULL
+                    )
+                    """);
+        }
     }
 }
