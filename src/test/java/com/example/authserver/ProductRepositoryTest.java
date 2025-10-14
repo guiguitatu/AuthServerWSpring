@@ -1,6 +1,7 @@
 package com.example.authserver;
 
 import com.example.authserver.domain.Product;
+import com.example.authserver.repository.DatabaseDialect;
 import com.example.authserver.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ class ProductRepositoryTest {
     @BeforeEach
     void setUp() throws SQLException {
         jdbcUrl = "jdbc:h2:mem:product-repository-test-" + UUID.randomUUID() + ";MODE=MySQL;DB_CLOSE_DELAY=-1";
-        repository = new ProductRepository(jdbcUrl, "sa", "");
+        repository = new ProductRepository(jdbcUrl, "sa", "", DatabaseDialect.MYSQL);
         recreateSchema();
     }
 

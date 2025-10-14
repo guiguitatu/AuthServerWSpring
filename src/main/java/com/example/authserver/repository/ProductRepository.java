@@ -17,24 +17,19 @@ public class ProductRepository {
     private final String jdbcUrl;
     private final String username;
     private final String password;
+    private final DatabaseDialect databaseDialect;
 
-    public ProductRepository(String jdbcUrl, String username, String password) {
+    public ProductRepository(String jdbcUrl, String username, String password, DatabaseDialect databaseDialect) {
         this.jdbcUrl = jdbcUrl;
         this.username = username;
         this.password = password;
+        this.databaseDialect = databaseDialect;
     }
 
     public void initializeSampleData() {
         try (Connection connection = getConnection();
              Statement statement = connection.createStatement()) {
-            statement.executeUpdate("""
-                    CREATE TABLE IF NOT EXISTS products (
-                        id INT AUTO_INCREMENT PRIMARY KEY,
-                        name VARCHAR(255) NOT NULL,
-                        description TEXT NOT NULL,
-                        price DECIMAL(19, 2) NOT NULL
-                    )
-                    """);
+            statement.executeUpdate(databaseDialect.createTableStatement());
 
             try (ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM products")) {
                 if (resultSet.next() && resultSet.getLong(1) == 0L) {

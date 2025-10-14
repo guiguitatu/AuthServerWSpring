@@ -15,6 +15,21 @@ Este projeto demonstra um servidor HTTP simples em Java 17 utilizando apenas a A
    ```
 4. O servidor estará disponível em `http://localhost:8080`.
 
+### Configuração do banco de dados
+
+A aplicação seleciona o banco de dados a partir da variável de ambiente `DB`, que pode receber os valores `mysql` (padrão) ou `sqlite`.
+
+- Para **MySQL**, os valores padrão são:
+  - `MYSQL_URL` (ou `DB_URL`): `jdbc:mysql://localhost:3306/authserver`
+  - `MYSQL_USER` (ou `DB_USER`): `root`
+  - `MYSQL_PASSWORD` (ou `DB_PASSWORD`): `root`
+- Para **SQLite**, os valores padrão são:
+  - `SQLITE_URL` (ou `DB_URL`): `jdbc:sqlite:authserver.db`
+  - `SQLITE_USER` (ou `DB_USER`): string vazia
+  - `SQLITE_PASSWORD` (ou `DB_PASSWORD`): string vazia
+
+Defina `DB=sqlite` no seu `.env` (ou nas variáveis de ambiente do sistema) para utilizar o driver SQLite; qualquer outro valor utiliza o MySQL.
+
 ## Endpoints
 
 - `GET /products` – lista todos os produtos.

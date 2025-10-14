@@ -2,6 +2,7 @@ package com.example.authserver;
 
 import com.example.authserver.domain.Product;
 import com.example.authserver.http.ProductHttpHandler;
+import com.example.authserver.repository.DatabaseDialect;
 import com.example.authserver.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpContext;
@@ -36,7 +37,7 @@ class ProductHttpHandlerIntegrationTest {
     @BeforeEach
     void setUp() throws IOException, SQLException {
         jdbcUrl = "jdbc:h2:mem:product-http-handler-test-" + UUID.randomUUID() + ";MODE=MySQL;DB_CLOSE_DELAY=-1";
-        repository = new ProductRepository(jdbcUrl, "sa", "");
+        repository = new ProductRepository(jdbcUrl, "sa", "", DatabaseDialect.MYSQL);
         recreateSchema();
         server = HttpServer.create(new InetSocketAddress(0), 0);
         HttpContext context = server.createContext("/products", new ProductHttpHandler(repository));
