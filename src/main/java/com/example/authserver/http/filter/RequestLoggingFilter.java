@@ -1,4 +1,4 @@
-package com.example.authserver.http;
+package com.example.authserver.http.filter;
 
 import com.sun.net.httpserver.Filter;
 import com.sun.net.httpserver.HttpExchange;
@@ -23,3 +23,4 @@ public class RequestLoggingFilter extends Filter {
         return "Registra logs simples para cada requisição";
     }
 }
+

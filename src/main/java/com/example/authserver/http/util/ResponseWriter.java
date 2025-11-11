@@ -1,4 +1,4 @@
-package com.example.authserver.http;
+package com.example.authserver.http.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,3 +47,4 @@ public enum ResponseWriter {
         return objectMapper.writeValueAsBytes(body);
     }
 }
+

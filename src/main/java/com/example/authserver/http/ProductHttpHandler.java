@@ -3,6 +3,7 @@ package com.example.authserver.http;
 import com.example.authserver.http.handler.HandlerFactory;
 import com.example.authserver.http.handler.RouteHandler;
 import com.example.authserver.http.handler.StaticResponseHandler;
+import com.example.authserver.http.util.ResponseWriter;
 import com.example.authserver.repository.ProductRepository;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;

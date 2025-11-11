@@ -1,7 +1,7 @@
 package com.example.authserver.http.handler.product;
 
 import com.example.authserver.domain.Product;
-import com.example.authserver.http.ResponseWriter;
+import com.example.authserver.http.util.ResponseWriter;
 import com.example.authserver.repository.ProductRepository;
 import com.sun.net.httpserver.HttpExchange;
 

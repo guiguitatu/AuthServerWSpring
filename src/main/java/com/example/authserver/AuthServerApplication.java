@@ -1,7 +1,7 @@
 package com.example.authserver;
 
 import com.example.authserver.http.ProductHttpHandler;
-import com.example.authserver.http.RequestLoggingFilter;
+import com.example.authserver.http.filter.RequestLoggingFilter;
 import com.example.authserver.repository.DatabaseDialect;
 import com.example.authserver.repository.ProductRepository;
 import com.sun.net.httpserver.HttpContext;
@@ -16,6 +16,10 @@ public class AuthServerApplication {
     public static void main(String[] args) throws IOException {
         int port = 8080;
         DatabaseConfiguration configuration = DatabaseConfiguration.fromEnvironment();
+        
+        // Carregar driver JDBC explicitamente
+        loadDatabaseDriver(configuration.dialect());
+        
         ProductRepository repository = new ProductRepository(
                 configuration.jdbcUrl(),
                 configuration.username(),
@@ -44,7 +48,7 @@ public class AuthServerApplication {
     private record DatabaseConfiguration(String jdbcUrl, String username, String password, DatabaseDialect dialect) {
 
         private static DatabaseConfiguration fromEnvironment() {
-            DatabaseDialect dialect = DatabaseDialect.fromString(envOrDefault("DB", "mysql"));
+            DatabaseDialect dialect = DatabaseDialect.fromString(envOrDefault("DB", "sqlite"));
             return switch (dialect) {
                 case MYSQL -> new DatabaseConfiguration(
                         envOrDefault("MYSQL_URL", envOrDefault("DB_URL", "jdbc:mysql://localhost:3306/authserver")),
@@ -64,6 +68,17 @@ public class AuthServerApplication {
         private static String envOrDefault(String key, String defaultValue) {
             String value = System.getenv(key);
             return value != null && !value.isBlank() ? value : defaultValue;
+        }
+    }
+    
+    private static void loadDatabaseDriver(DatabaseDialect dialect) {
+        try {
+            switch (dialect) {
+                case SQLITE -> Class.forName("org.sqlite.JDBC");
+                case MYSQL -> Class.forName("com.mysql.cj.jdbc.Driver");
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Driver JDBC não encontrado para " + dialect, e);
         }
     }
 }

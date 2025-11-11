@@ -1,6 +1,6 @@
 package com.example.authserver.http.handler;
 
-import com.example.authserver.http.ResponseWriter;
+import com.example.authserver.http.util.ResponseWriter;
 import com.example.authserver.http.handler.product.CreateProductHandler;
 import com.example.authserver.http.handler.product.DeleteProductHandler;
 import com.example.authserver.http.handler.product.GetProductHandler;
